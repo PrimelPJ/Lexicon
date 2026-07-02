@@ -1,0 +1,12 @@
+# Goal: a natural-language instruction and an optional approach standoff (metres).
+string instruction
+float32 standoff
+---
+# Result
+bool success
+geometry_msgs/PoseStamped final_pose
+string message
+---
+# Feedback
+string status
+float32 distance_remaining

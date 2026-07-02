@@ -1,0 +1,15 @@
+/lexicon_detector:
+  ros__parameters:
+    device: cpu
+    model_name: google/owlvit-base-patch32
+    score_thresh: 0.1
+    map_frame: map
+    rgb_topic: /camera/color/image_raw
+    depth_topic: /camera/depth/image_rect_raw
+    info_topic: /camera/color/camera_info
+
+/lexicon_find_object:
+  ros__parameters:
+    map_frame: map
+    base_frame: base_link
+    default_standoff: 0.6

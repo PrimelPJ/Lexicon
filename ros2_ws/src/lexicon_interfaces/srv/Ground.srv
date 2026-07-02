@@ -1,0 +1,10 @@
+# Request: open-vocabulary phrases to locate, and whether to prefer the nearest.
+string[] phrases
+bool nearest
+---
+# Response: 3D candidate poses in the map frame, ranked (best or nearest first).
+bool success
+geometry_msgs/PoseStamped[] poses
+string[] phrases
+float32[] scores
+string message
