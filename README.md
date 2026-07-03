@@ -1,5 +1,9 @@
 # Lexicon
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![CI](https://github.com/PrimelPJ/lexicon/actions/workflows/test.yml/badge.svg)
+
 Tell a ROS2 robot "go to the red chair" and it finds the chair with an
 open-vocabulary vision-language model, works out where that is in 3D, and
 navigates there with Nav2. No fixed class list, no retraining to add an object:
@@ -174,7 +178,7 @@ lexicon/
 ### Part 1: the VLM, no ROS needed
 
 ```bash
-pip install torch transformers pillow numpy
+pip install -r requirements.txt
 cd scripts
 python detect_image.py --image your_room.jpg --instruction "go to the red chair"
 # writes detections.jpg with boxes, prints scores and parsed queries
@@ -199,7 +203,7 @@ cd ros2_ws
 colcon build --symlink-install
 source install/setup.bash
 
-pip install torch transformers pillow numpy   # into the same environment
+pip install -r ../requirements.txt   # into the same environment
 
 # terminal 1: robot + Nav2 (TurtleBot3 example)
 export TURTLEBOT3_MODEL=waffle       # waffle has a depth camera
@@ -256,6 +260,15 @@ without touching the node, the service, or the action server.
 - Compose the detector as a component in a shared container with the camera
   driver to cut serialization overhead.
 - Publish `vision_msgs/Detection3DArray` for downstream consumers.
+
+## Limitations
+
+- **Occluded and off-frame targets.** The detector queries a single camera frame. If the object is behind another object or outside the field of view, the action aborts. There is no search or patrol behaviour to recover.
+- **No multi-instance disambiguation.** When multiple instances match the query (e.g. two chairs in view), only the highest-confidence — or, with "nearest", the shallowest-depth — candidate is returned. Others are silently ignored.
+- **Static goal, no live re-grounding.** The 3D target position is computed once when the command arrives. If the target moves after the goal is sent to Nav2, the robot drives to the original location.
+- **Dynamic obstacles mid-approach.** Nav2 replans around obstacles that appear en route, but if the path becomes permanently blocked the action fails with no retry or alternative approach strategy.
+- **VLM-quality dependency.** Detection confidence drives every downstream step. Low-light scenes, extreme viewpoints, or linguistically ambiguous queries can produce no detections or an incorrectly grounded pose; the system has no fallback query or re-prompt logic.
+- **Depth sensor limitations.** Grounding relies on valid depth pixels inside the detection box. Transparent, highly reflective, or out-of-range objects often produce no valid depth, causing `median_depth` to return `None` and the action to abort.
 
 ## License
 
