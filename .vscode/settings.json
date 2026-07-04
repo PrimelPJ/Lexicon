@@ -1,0 +1,9 @@
+{
+    "python.defaultInterpreterPath": "~/miniforge3/envs/ros2_env/bin/python",
+    "terminal.integrated.env.osx": {
+        "CONDA_DEFAULT_ENV": "ros2_env",
+        "PATH": "${env:HOME}/miniforge3/envs/ros2_env/bin:${env:HOME}/miniforge3/condabin:${env:PATH}"
+    },
+    "terminal.integrated.shellIntegration.enabled": true,
+    "ros.distro": "humble"
+}
