@@ -33,6 +33,7 @@ _COMMAND_PREFIXES = [
     r"^search for\s+",
     r"^locate\s+",
     r"^approach\s+",
+    r"^fetch\s+(?:me\s+)?",
     r"^where(?:'s| is)\s+",
     r"^get\s+(?:to\s+)?",
 ]
