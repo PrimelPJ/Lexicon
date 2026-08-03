@@ -18,6 +18,8 @@ executor would deadlock; this is the standard way to compose async ROS2 calls.
 
 from __future__ import annotations
 
+import asyncio
+
 import numpy as np
 import rclpy
 from rclpy.action import ActionServer, ActionClient, CancelResponse, GoalResponse
@@ -40,6 +42,7 @@ class FindObjectServer(Node):
         self.declare_parameter("map_frame", "map")
         self.declare_parameter("base_frame", "base_link")
         self.declare_parameter("default_standoff", 0.6)
+        self.declare_parameter("nav_timeout_sec", 120.0)
 
         self._cb = ReentrantCallbackGroup()
         self._ground = self.create_client(Ground, "ground", callback_group=self._cb)
@@ -123,7 +126,16 @@ class FindObjectServer(Node):
             result.message = "Nav2 rejected the goal"
             return result
 
-        nav_result = await send_future.get_result_async()
+        timeout = float(self.get_parameter("nav_timeout_sec").value)
+        try:
+            nav_result = await asyncio.wait_for(
+                send_future.get_result_async(), timeout=timeout)
+        except asyncio.TimeoutError:
+            send_future.cancel_goal_async()
+            goal_handle.abort()
+            result.success = False
+            result.message = f"navigation timed out after {timeout:.0f}s"
+            return result
 
         # 5. done
         if goal_handle.is_cancel_requested:
