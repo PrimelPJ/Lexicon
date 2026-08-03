@@ -176,6 +176,9 @@ class DetectorNode(LifecycleNode):
             p_map = transform_point(p_cam, cam_to_map)
             candidates.append((d, p_map, z))
 
+        self.get_logger().debug(
+            f"Grounding: {len(candidates)}/{len(dets)} detections had valid depth")
+
         if not candidates:
             response.success = False
             response.message = "matched in image but no valid depth on target"
