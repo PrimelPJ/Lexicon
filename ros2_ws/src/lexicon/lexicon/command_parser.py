@@ -40,7 +40,7 @@ _COMMAND_PREFIXES = [
 # "nearest"/"closest" are selectors (see wants_nearest), not visual attributes,
 # so they are stripped from the phrase sent to the detector. Matches a lone
 # article at end of string too, so "go to the" reduces to empty.
-_LEADING_ARTICLES = re.compile(r"^(the|a|an|my|that|this|nearest|closest)(\s+|$)", re.I)
+_LEADING_ARTICLES = re.compile(r"^(the|a|an|my|that|this|nearest|closest|farthest|furthest)(\s+|$)", re.I)
 _TRAILING_JUNK = re.compile(r"[.?!]+$")
 
 
@@ -99,6 +99,12 @@ def wants_nearest(text: str) -> bool:
     """True if the user asked for the nearest/closest instance, which changes how
     we pick among multiple detections (closest by depth rather than most confident)."""
     return bool(re.search(r"\b(nearest|closest)\b", text, re.I))
+
+
+def wants_farthest(text: str) -> bool:
+    """True if the user asked for the farthest/furthest instance, which picks
+    among multiple detections by largest depth rather than most confident."""
+    return bool(re.search(r"\b(farthest|furthest)\b", text, re.I))
 
 
 def llm_extract(text: str) -> List[str]:
