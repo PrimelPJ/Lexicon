@@ -36,6 +36,24 @@ class OpenVocabDetection:
         x1, y1, x2, y2 = self.box_xyxy
         return ((x1 + x2) / 2.0, (y1 + y2) / 2.0)
 
+    @property
+    def area(self) -> float:
+        """Box area in pixels. Useful for filtering tiny or noisy detections."""
+        x1, y1, x2, y2 = self.box_xyxy
+        return max(0.0, x2 - x1) * max(0.0, y2 - y1)
+
+    def iou(self, other: "OpenVocabDetection") -> float:
+        """Intersection-over-union with another detection, for NMS or dedup."""
+        x1 = max(self.box_xyxy[0], other.box_xyxy[0])
+        y1 = max(self.box_xyxy[1], other.box_xyxy[1])
+        x2 = min(self.box_xyxy[2], other.box_xyxy[2])
+        y2 = min(self.box_xyxy[3], other.box_xyxy[3])
+        inter = max(0.0, x2 - x1) * max(0.0, y2 - y1)
+        union = self.area + other.area - inter
+        if union <= 0.0:
+            return 0.0
+        return inter / union
+
 
 class OpenVocabDetector:
     def __init__(self, model_name: str = "google/owlvit-base-patch32",
