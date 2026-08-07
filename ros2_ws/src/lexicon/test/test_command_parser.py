@@ -2,7 +2,7 @@
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from lexicon.command_parser import parse_instruction, wants_nearest
+from lexicon.command_parser import parse_instruction, wants_nearest, wants_largest
 
 
 def test_go_to_the_red_chair():
@@ -37,3 +37,14 @@ def test_wants_nearest_detects_selector():
     assert wants_nearest("find the nearest mug")
     assert wants_nearest("closest chair")
     assert not wants_nearest("the red chair")
+
+
+def test_wants_largest_detects_selector():
+    assert wants_largest("find the biggest chair")
+    assert wants_largest("go to the largest box")
+    assert not wants_largest("find the red mug")
+
+
+def test_biggest_stripped_from_query():
+    assert parse_instruction("find the biggest chair") == ["chair"]
+    assert parse_instruction("go to the largest red box") == ["red box", "box"]
