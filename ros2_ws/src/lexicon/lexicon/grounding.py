@@ -86,3 +86,19 @@ def median_depth(depth_patch: np.ndarray) -> Optional[float]:
     if valid.size == 0:
         return None
     return float(np.median(valid))
+
+
+def depth_confidence(depth_patch: np.ndarray) -> float:
+    """Fraction of valid (positive, finite) pixels in a depth patch.
+
+    A low confidence means most of the bounding box landed on depth holes or
+    edges, so the median depth is unreliable and the grounding should be
+    treated with suspicion. Useful as a gate before trusting a 3D projection.
+
+    Returns a value in [0, 1]. Zero means no valid depth at all.
+    """
+    total = depth_patch.size
+    if total == 0:
+        return 0.0
+    valid = int(np.count_nonzero((depth_patch > 0) & np.isfinite(depth_patch)))
+    return valid / total

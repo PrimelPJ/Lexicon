@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from lexicon.grounding import (
     CameraIntrinsics, pixel_to_camera_point, transform_point,
-    approach_pose, median_depth, quaternion_from_yaw,
+    approach_pose, median_depth, depth_confidence, quaternion_from_yaw,
 )
 
 
@@ -61,6 +61,26 @@ def test_median_depth_rejects_zeros_and_nans():
 def test_median_depth_all_invalid_returns_none():
     patch = np.zeros((3, 3))
     assert median_depth(patch) is None
+
+
+def test_depth_confidence_all_valid():
+    patch = np.array([[1.0, 2.0], [3.0, 4.0]])
+    assert math.isclose(depth_confidence(patch), 1.0)
+
+
+def test_depth_confidence_half_invalid():
+    patch = np.array([[0.0, 2.0], [np.nan, 1.5]])
+    assert math.isclose(depth_confidence(patch), 0.5)
+
+
+def test_depth_confidence_all_invalid():
+    patch = np.zeros((3, 3))
+    assert depth_confidence(patch) == 0.0
+
+
+def test_depth_confidence_empty_patch():
+    patch = np.array([]).reshape(0, 0)
+    assert depth_confidence(patch) == 0.0
 
 
 def test_quaternion_yaw_zero_is_identity():
